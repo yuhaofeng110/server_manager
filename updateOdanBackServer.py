@@ -23,6 +23,7 @@ def svn_update(project):
 	ssh.close()
 	return True
 
+
 if __name__ == '__main__':
 	timeout = 1000
 	f = open('./config.yaml')
