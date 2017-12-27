@@ -2,7 +2,7 @@
 import paramiko
 import yaml
 import time
-import threading
+import multiprocessing
 
 def svn_update(project):
 	ssh = paramiko.SSHClient()
@@ -13,7 +13,6 @@ def svn_update(project):
 		print("connection %s is time out" % project[0])
 		return False
 	stdin, stdout, stderr = ssh.exec_command('svn up /www/web/indonesia2/')
-	endtime = time.time() + timeout
 	result = stdout.read()
 	error = stderr.read().decode('utf-8')
 	result = result.decode('utf-8')
@@ -29,7 +28,7 @@ if __name__ == '__main__':
 	f = open('./config.yaml')
 	config = yaml.load(f)
 	for project in config['projects']:
-		my_thread = threading.Thread(target=svn_update,args=(project,))
+		my_thread = multiprocessing.Process(target=svn_update,args=(project,))
 		my_thread.start()
 		my_thread.join()
 	print('all finished update')
