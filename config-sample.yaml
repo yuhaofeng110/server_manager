@@ -1,0 +1,14 @@
+projects:
+-
+  - {hostname}
+  - {passwd}
+  - {host_ip}
+-
+  - {hostname}
+  - {passwd}
+  - {host_ip}
+
+username: {login username}
+port: {port}
+cmd: {cmd}
+

@@ -1,9 +1,10 @@
 #!/usr/bin/python3.6
+import asyncio
 import paramiko
 import yaml
-import time
-import multiprocessing
 
+
+@asyncio.coroutine
 def svn_update(project):
 	ssh = paramiko.SSHClient()
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 作用是允许连接不在know_hosts文件中的主机
@@ -12,7 +13,7 @@ def svn_update(project):
 	except Exception:
 		print("connection %s is time out" % project[0])
 		return False
-	stdin, stdout, stderr = ssh.exec_command('svn up /www/web/indonesia2/')
+	stdin, stdout, stderr = ssh.exec_command(config['cmd'])
 	result = stdout.read()
 	error = stderr.read().decode('utf-8')
 	result = result.decode('utf-8')
@@ -28,8 +29,10 @@ if __name__ == '__main__':
 	timeout = 1000
 	f = open('./config.yaml')
 	config = yaml.load(f)
+	loop = asyncio.get_event_loop()
+	tasks = []
 	for project in config['projects']:
-		my_thread = multiprocessing.Process(target=svn_update,args=(project,))
-		my_thread.start()
-		my_thread.join()
-	print('all finished update')
+		tasks.append(asyncio.ensure_future(svn_update(project)))
+	loop.run_until_complete(asyncio.wait(tasks))
+	print('All cmd finished.')
+	loop.close()
